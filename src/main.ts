@@ -9,7 +9,18 @@ async function bootstrap() {
   const prefix = config.get<string>('apiPrefix');
 
   app.setGlobalPrefix(prefix);
-  app.enableCors({ origin: true, credentials: true });
+  // ---- CORS ----
+  const origins = (config.get<string>('CORS_ORIGIN') ?? '*')
+    .split(',')
+    .map((o) => o.trim());
+
+  app.enableCors({
+    origin: origins.includes('*') ? true : origins,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
+
 
   app.useGlobalPipes(
     new ValidationPipe({
